@@ -5,6 +5,7 @@ import fs from 'node:fs';
 
 export async function bootDb(...migrationPaths) {
   const db = new PGlite({ extensions: { pgcrypto } });
+  await db.exec('create schema extensions; create extension pgcrypto with schema extensions;');
   await db.exec(`
     create role anon; create role authenticated; create role service_role;
     create schema auth;

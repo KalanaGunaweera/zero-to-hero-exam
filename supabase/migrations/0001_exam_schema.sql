@@ -14,7 +14,6 @@
 --   * Admins use Supabase Auth; RLS grants them access via is_admin().
 -- =====================================================================
 
-create extension if not exists pgcrypto;
 
 -- ---------------------------------------------------------------------
 -- Tables
@@ -183,7 +182,7 @@ returns boolean language sql immutable as $$
 $$;
 
 create or replace function public._new_registration_id()
-returns text language plpgsql volatile as $$
+returns text language plpgsql volatile set search_path = public as $$
 declare
   alphabet constant text := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; -- no 0/O/1/I
   code text;
@@ -191,7 +190,8 @@ declare
   i int;
 begin
   loop
-    b := gen_random_bytes(6);
+    -- first 6 bytes of a v4 UUID are fully random
+    b := decode(substr(replace(gen_random_uuid()::text, '-', ''), 1, 12), 'hex');
     code := '';
     for i in 0..5 loop
       code := code || substr(alphabet, (get_byte(b, i) % 32) + 1, 1);
