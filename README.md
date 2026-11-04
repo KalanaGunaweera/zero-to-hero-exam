@@ -83,7 +83,7 @@ On **/admin** use the switches:
   results and manage exams/questions; nobody can edit registrations or answers through the API.
 - Correct answers live in a separate `question_keys` table that no student function returns.
 - Session: a random 256-bit token in an **httpOnly** cookie; only its SHA-256 hash is stored.
-- On a new device, students re-enter with **mobile + registration ID** (e.g. `ZTH27-K7M2QX`);
+- On a new device, students re-enter with **mobile + registration ID** (e.g. `ZTHG9-2027A001`);
   this issues a new session and revokes the old one.
 
 ### Time is decided by the server

@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   const mobile = normalizeMobile(String(body?.mobile ?? ''));
   const regId = String(body?.registrationId ?? '').trim().toUpperCase();
   if (!mobile) return fail('INVALID_MOBILE', 422);
-  if (!/^ZTH27-[A-Z2-9]{6}$/.test(regId)) return fail('RESUME_NOT_FOUND', 404);
+  if (!/^ZTHG9-2027[A-Z]\d{3}$/.test(regId)) return fail('RESUME_NOT_FOUND', 404);
 
   // Small fixed delay blunts guessing
   await new Promise((r) => setTimeout(r, 400));

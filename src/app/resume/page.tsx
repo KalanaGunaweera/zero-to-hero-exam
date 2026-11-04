@@ -9,7 +9,7 @@ import { errorMessage } from '@/lib/messages';
 export default function ResumePage() {
   const router = useRouter();
   const [mobile, setMobile] = useState('');
-  const [regId, setRegId] = useState('ZTH27-');
+  const [regId, setRegId] = useState('ZTHG9-2027A');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -65,7 +65,7 @@ export default function ResumePage() {
             value={regId}
             onChange={(e) => setRegId(e.target.value.toUpperCase())}
             required
-            maxLength={12}
+            maxLength={14}
             className={`${input} tabular tracking-wider`}
             lang="en"
           />

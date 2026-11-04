@@ -1,7 +1,7 @@
 import { bootDb } from './pglite-db.mjs';
 import assert from 'node:assert/strict';
 
-const db = await bootDb(new URL('../supabase/migrations/0001_exam_schema.sql', import.meta.url).pathname);
+const db = await bootDb(new URL('../supabase/migrations/0001_exam_schema.sql', import.meta.url).pathname, new URL('../supabase/migrations/0003_fix_registration_id.sql', import.meta.url).pathname, new URL('../supabase/migrations/0004_sequential_registration_ids.sql', import.meta.url).pathname);
 const one = async (sql, params = []) => (await db.query(sql, params)).rows[0];
 const fn = async (name, args) => {
   const keys = Object.keys(args);
@@ -28,7 +28,7 @@ const reg = {
   p_district: 'Matara', p_parent_name: 'Parent Name', p_consent: true, p_token_hash: 'tok1',
 };
 const r1 = await fn('register_student', reg);
-assert.match(r1.registration_id, /^ZTH27-[A-Z2-9]{6}$/); ok('registration returns ID ' + r1.registration_id);
+assert.equal(r1.registration_id, 'ZTHG9-2027A001'); ok('registration returns ID ' + r1.registration_id);
 await expectErr(fn('register_student', { ...reg, p_token_hash: 'tok2' }), 'DUPLICATE_MOBILE'); ok('duplicate mobile rejected');
 await expectErr(fn('register_student', { ...reg, p_mobile: '0661234567', p_token_hash: 't3' }), 'INVALID_MOBILE'); ok('bad mobile rejected');
 await expectErr(fn('register_student', { ...reg, p_mobile: '0711111111', p_district: 'Mars', p_token_hash: 't4' }), 'INVALID_DISTRICT'); ok('bad district rejected');
@@ -107,7 +107,21 @@ await fn('resume_session', { p_mobile: '0771234567', p_registration_id: r1.regis
 await expectErr(fn('get_exam_state', { p_token_hash: 'tok1' }), 'INVALID_SESSION');
 st = await fn('get_exam_state', { p_token_hash: 'tokNew' }); assert.equal(st.registration_id, r1.registration_id);
 ok('resume issues new session, old one revoked');
-await expectErr(fn('resume_session', { p_mobile: '0771234567', p_registration_id: 'ZTH27-XXXXXX', p_new_token_hash: 'x' }), 'RESUME_NOT_FOUND'); ok('wrong registration ID rejected');
+let bad = await fn('resume_session', { p_mobile: '0771234567', p_registration_id: 'ZTHG9-2027A999', p_new_token_hash: 'x' });
+assert.equal(bad.error, 'RESUME_NOT_FOUND'); ok('wrong registration ID rejected');
+const regs = (await db.query('select registration_id from students order by created_at')).rows.map((r) => r.registration_id);
+assert.deepEqual(regs, ['ZTHG9-2027A001', 'ZTHG9-2027A002', 'ZTHG9-2027A003']); ok('IDs are sequential: ' + regs.join(', '));
+for (let i = 0; i < 3; i++) bad = await fn('resume_session', { p_mobile: '0771234567', p_registration_id: 'ZTHG9-2027A9' + (10 + i), p_new_token_hash: 'x' });
+assert.equal(bad.error, 'RESUME_NOT_FOUND');
+bad = await fn('resume_session', { p_mobile: '0771234567', p_registration_id: 'ZTHG9-2027A950', p_new_token_hash: 'x' });
+assert.equal(bad.error, 'RESUME_LOCKED'); ok('5th wrong try locks re-entry');
+bad = await fn('resume_session', { p_mobile: '0771234567', p_registration_id: r1.registration_id, p_new_token_hash: 'y' });
+assert.equal(bad.error, 'RESUME_LOCKED'); ok('even the correct ID is refused while locked');
+await db.query("update resume_failures set locked_until = now() - interval '1 second'");
+const okAgain = await fn('resume_session', { p_mobile: '0771234567', p_registration_id: r1.registration_id, p_new_token_hash: 'tokNew2' });
+assert.equal(okAgain.ok, true); ok('lock expires after 15 minutes; correct ID works again');
+const ids = await db.query("select public._new_registration_id() a"); await db.query("select setval('registration_seq', 999)");
+assert.equal((await db.query("select public._new_registration_id() a")).rows[0].a, 'ZTHG9-2027B001'); ok('after A999 comes B001');
 
 // RLS: anon/authenticated non-admin cannot read students or keys
 await db.query("insert into auth.users values ('11111111-1111-1111-1111-111111111111','admin@x.com'),('22222222-2222-2222-2222-222222222222','rando@x.com')");
@@ -123,8 +137,7 @@ await db.exec('reset role');
 
 // ---- The real Grade 9 2027 paper (migration 0002)
 {
-  const db2 = await bootDb(new URL('../supabase/migrations/0001_exam_schema.sql', import.meta.url).pathname,
-                           new URL('../supabase/migrations/0002_grade9_2027_paper.sql', import.meta.url).pathname);
+  const db2 = await bootDb(new URL('../supabase/migrations/0001_exam_schema.sql', import.meta.url).pathname, new URL('../supabase/migrations/0002_grade9_2027_paper.sql', import.meta.url).pathname, new URL('../supabase/migrations/0003_fix_registration_id.sql', import.meta.url).pathname, new URL('../supabase/migrations/0004_sequential_registration_ids.sql', import.meta.url).pathname);
   const ex = (await db2.query('select duration_minutes from exams where is_active')).rows[0];
   assert.equal(ex.duration_minutes, 40); ok('paper migration: exam is 40 minutes');
   const rows = (await db2.query('select q.position, k.correct_option, q.image_url from questions q join question_keys k on k.question_id = q.id order by q.position')).rows;
