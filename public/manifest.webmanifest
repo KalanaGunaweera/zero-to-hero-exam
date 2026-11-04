@@ -1,0 +1,17 @@
+{
+  "name": "Zero to Hero – 9 ශ්‍රේණිය ගණිතය 2027 විභාගය",
+  "short_name": "Zero to Hero",
+  "description": "Kalana Gunaweera – Grade 9 Mathematics 2027 online examination",
+  "lang": "si",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#082A1F",
+  "theme_color": "#082A1F",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

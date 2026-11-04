@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --board: #0f3d2e;
+  --board-deep: #082a1f;
+  --gold: #f5c400;
+  --gold-light: #ffe45c;
+  --paper: #f5f8f6;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--paper);
+  color: #14231c;
+  /* Sinhala needs extra vertical room for vowel signs above and below */
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* Faint 5mm graph paper on light pages */
+.graph-paper {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(rgba(15, 61, 46, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 61, 46, 0.06) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Chalkboard: dark green with a soft chalk-dust texture */
+.chalkboard {
+  background-color: var(--board);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(255, 255, 255, 0.07), transparent 55%),
+    radial-gradient(ellipse at 90% 100%, rgba(0, 0, 0, 0.35), transparent 60%);
+}
+
+/* Storm background from the Facebook cover: black with green thunderclouds */
+.storm {
+  background-color: #020a06;
+  background-image:
+    radial-gradient(ellipse 60% 70% at 28% 18%, rgba(38, 128, 74, 0.55), transparent 70%),
+    radial-gradient(ellipse 50% 60% at 62% 85%, rgba(22, 96, 56, 0.4), transparent 70%),
+    radial-gradient(ellipse 40% 50% at 8% 90%, rgba(30, 110, 64, 0.35), transparent 70%);
+}
+
+.cover-art-fade {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 32%);
+  mask-image: linear-gradient(to right, transparent 0, #000 32%);
+}
+
+/* Cover headline colours: yellow title, white-to-yellow wordmark */
+.cover-yellow {
+  background: linear-gradient(180deg, #fff7a8 0%, #ffe41f 45%, #e8a900 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.55));
+}
+.cover-white {
+  background: linear-gradient(180deg, #ffffff 15%, #fff38a 60%, #f2c300 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.6));
+}
+.glow-rule {
+  height: 2px;
+  max-width: 22rem;
+  background: linear-gradient(90deg, transparent, #ffe45c 30%, #fff 50%, #ffe45c 70%, transparent);
+  box-shadow: 0 0 10px 1px rgba(255, 220, 60, 0.55);
+}
+
+/* Maths markup (see MathText) */
+.math-frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  margin: 0 0.15em;
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+}
+.math-frac-num {
+  padding: 0 0.25em 0.05em;
+  border-bottom: 0.08em solid currentColor;
+}
+.math-frac-den {
+  padding: 0.05em 0.25em 0;
+}
+.math-sqrt {
+  display: inline-flex;
+  align-items: stretch;
+  white-space: nowrap;
+  margin: 0 0.1em;
+}
+.math-sqrt-sign {
+  font-size: 1.15em;
+  line-height: 1.1;
+  padding-right: 0.02em;
+}
+.math-sqrt-body {
+  border-top: 0.08em solid currentColor;
+  padding: 0.05em 0.2em 0;
+  margin-top: 0.12em;
+  line-height: 1.35;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* iOS safe areas for the sticky exam bars */
+.pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-pop {
+  animation: pop-in 0.18s ease-out;
+}
+
+@keyframes bubble-fill {
+  from {
+    transform: scale(0.6);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+.animate-fill {
+  animation: bubble-fill 0.15s ease-out;
+}
